@@ -1,0 +1,212 @@
+body {
+  
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  background-image:url(tex.png);    
+}
+
+* {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+div4
+{
+  border-style: solid;
+  border-bottom-width: 300px;
+}
+
+
+
+
+.main-nav
+{
+    float: right;
+    list-style: none;
+    margin-top: 5px;
+    line-height: 300%;
+}
+
+.main-nav li a
+{
+    color: skyblue;
+    text-decoration: underline;
+    padding: 5px 20px;
+    font-family: "Roboto", sans-serif;
+    font-size: 25px;
+}
+
+.main-nav li
+{
+    
+    display: inline-block
+}
+
+.main-nav li a:hover
+{
+    border: 1px solid white;
+    
+}
+
+.logo img
+{
+    width: 200px;
+    height: auto;
+    float: left;
+}
+
+.hero
+{
+    position: left;
+    width: 2000px;
+    
+    font-size: 25px;
+    line-height: 300%;
+}
+
+h1
+{
+    color: skyblue;
+    text-transform: uppercase;    
+    text-align: left;
+    margin-top: 100px;
+    font-family: verdana;
+    text-indent: 1em;
+    
+}
+
+.news
+{
+    position: absolute;
+    width: 1200px;
+    margin-left: 0px;
+    margin-top: 0px;
+    
+}
+
+.news p
+{
+    text-indent: 5em;
+    text-transform: default;
+    font-size: 20px;
+    color: skyblue;
+}
+
+ol
+{
+    
+    color: white;
+    text-transform: none;
+    text-shadow: 2px 2px black;
+    font-size: 25px;
+    text-align: left;
+    margin-top: 80px;
+    line-height: 300%;
+    font-family: verdana;
+    text-indent: 8em;
+    
+}
+
+.column {
+  float: left;
+  width: 25%;
+  height: 2px;    
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+      
+    width: 100%;
+    display: block;
+  }
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  padding: 0 16px;
+  color: #5DADE2;
+  text-shadow: 2px 2px black;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.title {
+  color: #5DADE2;
+  text-shadow: 2px 2px black;
+}
+
+.button {
+  border: none;
+  outline: 0;
+  display: inline-block;
+  padding: 8px;
+  color: white;
+  background-color: #000;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+p1 
+{
+    line-height: 200%;
+    font-size: 30px;
+    
+}
+.button:hover {
+  background-color: #555;
+}
+
+.row
+{
+    line-height: 75px;
+}
+
+h3
+{    
+    text-transform: uppercase;
+    text-shadow: 2px 2px black;
+    font-size: 30px;
+    text-indent: 5em;
+    margin-top: 100px;
+    color: aliceblue
+}
+
+.Antwain
+{
+    position: absolute;
+    margin: auto; 
+    left: 15%;
+     
+}
+
+table, th, td
+{
+  border: 2px solid black;
+}
+
+tr
+{        
+    font-size: 30px;
+    color: white;
+    text-shadow: 2px 2px black;    
+    
+}
+
+.words
+{
+    line-height: 150px;
+    font-size: 30px;
+    text-indent: 5em;
+    color: white;
+    text-transform: uppercase;
+}
