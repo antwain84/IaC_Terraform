@@ -1,7 +1,13 @@
 ########################################################
-#
-# creates Windows vm using the variables.tf and provider.tf# 
-#
+# creates the following resources in Azure
+# DevSecOps resource group
+# storage account
+# blob account with index.html file for static website
+# 3 resource groups using for_each
+# Windows server VM
+# network interface
+# virtual network
+# subnet
 ########################################################
 
 resource "random_string" "sub_name" {
