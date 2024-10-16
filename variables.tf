@@ -1,26 +1,23 @@
 variable "resource_group_location" {
-    #default = "southCentralus"
-    default = "East us 2"
+    default = "WEST US"
     description = "location of the resource group"
 }
 
 variable "resource_group_name_prefix" {
-    default = "soc" # was "rg"
+    default = "A84" # was "rg"
     description = "prefix of the resource group"
+
 }
 
 variable "business_unit" {
-    default = "soc"
+    default = "A84"
 }
 
-variable "group_name"{
-    default = ["group1", "group2", "group3"]
-    type = list(string)
-    description = "RG names"
+variable "allowed_ips" {
+    type    = list(string)
+    default = [
+            "123.123.123.1/16",
+            "192.159.16.1/16"
+    ]
 }
 
-variable "group_name_4each"{
-    default = ["DEV", "UAT", "SIT"]
-    type = set(string)
-    description = "RG names"
-}
