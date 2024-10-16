@@ -34,7 +34,7 @@ resource "azurerm_linux_web_app" "a84_lin_app_service" {
     # Configure the runtime (Node.js 20 LTS)
         site_config {
             
-            linux_fx_version = "NODE|18" # Set the runtime stack to Node.js 20 LTS
+            linux_fx_version = "NODE|20-lts" # Set the runtime stack to Node.js 20 LTS
             
             # App Service Authentication (Basic Authentication using Azure AD)
             #ftps_state = "FtpsOnly" # Enable FTPS only for secure deployment
