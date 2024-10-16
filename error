@@ -1,0 +1,7 @@
+Error: Value for unconfigurable attribute
+│
+│   with azurerm_linux_web_app.a84_lin_app_service,
+│   on webApp.tf line 37, in resource "azurerm_linux_web_app" "a84_lin_app_service":
+│   37:             linux_fx_version = "NODE|18" # Set the runtime stack to Node.js 20 LTS
+│
+│ Can't configure a value for "site_config.0.linux_fx_version": its value will be decided automatically based on the result of applying this configuration.
