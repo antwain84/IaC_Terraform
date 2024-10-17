@@ -1,0 +1,70 @@
+resource "azurerm_service_plan" "a84_app_serv" {
+    name        = "a84-app-serv"
+    location    =  var.resource_group_location
+    resource_group_name = azurerm_resource_group.DevSecOps.name
+    os_type = "Linux"
+    sku_name = "B1"
+            #["B1" "B2" "B3" "S1" "S2" "S3" "P1v2" "P2v2" "P3v2" "P0v3" "P1v3" "P2v3" "P3v3" 
+            #"P1mv3" "P2mv3" "P3mv3" "P4mv3" "P5mv3" "Y1" "EP1" "EP2" "EP3" "FC1" "F1" "I1" 
+            #"I2" "I3" "I1v2" "I2v2" "I3v2" "I4v2" "I5v2" "I6v2" "D1" "SHARED" "WS1" "WS2" "WS3"]
+        
+    
+}
+
+# Create the App Service with Node.js 20 LTS
+resource "azurerm_linux_web_app" "a84_lin_app_service" {
+    name = "a84-lin-app-service"
+    location = var.resource_group_location
+    resource_group_name = azurerm_resource_group.DevSecOps.name
+    service_plan_id = azurerm_service_plan.a84_app_serv.id
+    
+    
+    # Configure the runtime (Node.js 20 LTS)
+        site_config {
+            application_stack {
+              node_version = "20-lts"
+            }
+            
+            #linux_fx_version = "NODE|20-lts" # Set the runtime stack to Node.js 20 LTS
+            #always_on = "true"
+            
+            # App Service Authentication (Basic Authentication using Azure AD)
+            #ftps_state = "FtpsOnly" # Enable FTPS only for secure deployment
+
+            #app_command_line = "" # You can set custom commands here if needed
+        dynamic "ip_restriction" {
+                for_each = var.allowed_ips
+                content {
+                    name = "AllowSpecificIP-${ip_restriction.value}"
+                    ip_address = ip_restriction.value
+                    action = "Allow"
+                    #priority = 100 + index(ip_restriction.value, var.allowed_ips)
+                }      
+            }
+        }
+    # Authentication Settings (enable with Azure Active Directory)
+     
+    # Set up inbound traffic rules (IP restrictions)
+  
+ 
+        app_settings = {
+            APPINSIGHTS_PROFILERFEATURE_VERSION = "1.0.0"
+            APPINSIGHTS_SNAPSHOTFEATURE_VERSION = "1.0.0"
+            DiagnosticServices_EXTENSION_VERSION = "~3"
+            InstrumentationEngine_EXTENSION_VERSION = "disabled"
+            SnapshotDebugger_EXTENSION_VERSION = "disabled"
+            XDT_MicrosoftApplicationInsights_BaseExtensions = "disabled"
+            XDT_MicrosoftApplicationInsights_Java = "1"
+            XDT_MicrosoftApplicationInsights_Mode = "recommended"
+            XDT_MicrosoftApplicationInsights_NodeJS = "1"
+            XDT_MicrosoftApplicationInsights_PreemptSdk = "disabled"
+        }
+    # Add multiple IP restrictions if needed
+  
+    # Tags
+    tags = {
+
+        environment = "Production"
+        project = "App Service Deployment"
+    }
+}
