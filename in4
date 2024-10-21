@@ -1,0 +1,71 @@
+variable "resource_group_location" {
+    default = "WEST US 2"
+    description = "location of the resource group"
+}
+
+variable "resource_group_name_prefix" {
+    default = "A84" # was "rg"
+    description = "prefix of the resource group"
+}
+
+variable "resource_group_name" {
+    default = "a84-DevOps"
+}
+
+variable "web_app_name" {
+  default = "a84-web-app"
+}
+
+variable "web_app_runstack" {
+  default = "20-lts"
+}
+
+variable "tags" {
+  type      = map(string)
+  default   = {
+    tag1    = "tag1"
+    tag2    = "tag2"
+  }
+}
+
+variable "business_unit" {
+    default = "A84"
+}
+
+variable "allowed_ips" {
+    type    = list(string)
+    default = [
+            "123.123.123.1/16",
+            "192.159.16.1/24"
+    ]
+}
+
+variable "app_settings" {
+    type    = map(string)
+    default = {
+      WEBSITE_RUN_FROM_PACKAGE          = "1"
+      WEBSITE_ENABLE_SYNC_UPDATE_SITE   = "true"
+    }
+}
+
+variable "app_service_plan_name" {
+  default = "asp-a84-plan"
+}
+
+variable "app_service_plan_sku" {
+  default = "B1"
+
+    /*
+    "B1" "B2" "B3" "S1" "S2" "S3" "P1v2" "P2v2" "P3v2" "P0v3" "P1v3" "P2v3" "P3v3" 
+    "P1mv3" "P2mv3" "P3mv3" "P4mv3" "P5mv3" "Y1" "EP1" "EP2" "EP3" "FC1" "F1" "I1" 
+    "I2" "I3" "I1v2" "I2v2" "I3v2" "I4v2" "I5v2" "I6v2" "D1" "SHARED" "WS1" "WS2" "WS3"
+    */
+}
+
+variable "log_workspace" {
+    default = "a84-log-workspace"  
+}
+
+variable "app_insights" {
+    default = "a84-app-insights"
+}
