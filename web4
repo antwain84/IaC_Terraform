@@ -1,0 +1,146 @@
+resource "azurerm_resource_group" "rg-a84" {
+    name = var.resource_group_name
+    location = var.resource_group_location
+
+    tags = var.tags
+}
+
+resource "azurerm_service_plan" "a84_app_serv" {
+    name        = var.app_service_plan_name
+    location    =  var.resource_group_location
+    resource_group_name = azurerm_resource_group.rg-a84.name
+    os_type = "Linux"
+    sku_name = var.app_service_plan_sku
+
+    tags = var.tags
+}
+
+# Create the App Service with Node.js 20 LTS
+resource "azurerm_linux_web_app" "a84_lin_app_service" {
+    name = var.web_app_name
+    location = var.resource_group_location
+    resource_group_name = azurerm_resource_group.rg-a84.name
+    service_plan_id = azurerm_service_plan.a84_app_serv.id
+
+
+    # Configure the runtime (Node.js 20 LTS)
+        site_config {
+            application_stack {
+              node_version = var.web_app_runstack
+            }
+
+        dynamic "ip_restriction" {
+                for_each = var.allowed_ips
+                content {
+                    name = "AllowSpecificIP"
+                    ip_address = ip_restriction.value
+                    action = "Allow"
+                    priority = 100
+                }      
+            }        
+        }
+
+    app_settings = var.app_settings
+
+    # Tags
+    tags = var.tags
+}
+
+resource "azurerm_log_analytics_workspace" "log_workspace" {
+    name                    = var.log_workspace
+    location                = var.resource_group_location
+    resource_group_name     = azurerm_resource_group.rg-a84.name
+    sku                     = "PerGB2018"
+    retention_in_days       =  90
+
+    /*
+    SKU tiers
+    PerNode, Premium, Standard, Standalone, Unlimited, CapacityReservation, and PerGB2018
+    */
+}
+
+resource "azurerm_application_insights" "a84_app_insights" {
+  name                = var.app_insights
+  location            = var.resource_group_location
+  resource_group_name = azurerm_resource_group.rg-a84.name
+  workspace_id        = azurerm_log_analytics_workspace.log_workspace.id
+  application_type    = "web"
+}
+
+# Define the metric alert
+resource "azurerm_monitor_metric_alert" "a84_http" {
+  name                = "a84-http-alert"
+  resource_group_name = azurerm_resource_group.rg-a84.name
+  scopes              = [azurerm_linux_web_app.a84_lin_app_service.id] # Resource to monitor (App Service)
+  description         = "queue has reached 100"
+  severity            = 3  # Severity level (1 = Critical, 2 = Error, 3 = Warning, etc.)
+  window_size         = "PT5M"  # Period to monitor (5 minutes in this case)
+  frequency           = "PT1M" # How often the alert is evaluated
+  enabled             = true  # Enable the alert
+
+  # Criteria for the alert
+  criteria {
+    #metric_namespace = "Microsoft.Web/serverFarms"
+    #metric_name      = "HttpQueueLength" # Metric to monitor (e.g., CPU usage)
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "HttpResponseTime" # Metric to monitor (e.g., CPU usage)
+    aggregation      = "Average"       # Aggregation type (e.g., Average, Total, etc.)
+    operator         = "GreaterThan"   # Condition (e.g., GreaterThan, LessThan, etc.)
+    threshold        = 100              # Threshold value (e.g., 80% CPU usage)
+  }
+
+  # Optional: Configure an action group to send notifications
+  action {
+    action_group_id = azurerm_monitor_action_group.a84_action_group.id # Link to an action group to notify
+  }
+}
+
+# Optional: Define an action group for notifications (e.g., email, SMS, webhook)
+# resource "azurerm_monitor_action_group" "example" {
+#   name                = "example-action-group"
+#   resource_group_name = azurerm_resource_group.example.name
+#   short_name          = "alertgrp"
+
+#   email_receiver {
+#     name          = "emailreceiver"
+#     email_address = "alerts@example.com"
+#   }
+
+#   sms_receiver {
+#     name         = "smsreceiver"
+#     country_code = "1"
+#     phone_number = "1234567890"
+#   }
+# }
+
+resource "azurerm_monitor_action_group" "a84_action_group" {
+  name                = "a84-action group"
+  resource_group_name = azurerm_resource_group.rg-a84.name
+  short_name          = "insightsDet"
+
+#   arm_role_receiver {
+#     name                    = "armroleaction"
+#     role_id                 = "0"
+#     use_common_alert_schema = true
+#   }
+#   arm_role_receiver {
+#     name                    = "armroleaction2"
+#     role_id                 = "01"
+#     use_common_alert_schema = true
+#   }  
+}
+
+
+resource "azurerm_monitor_smart_detector_alert_rule" "a84_detector_rule" {
+  name                = "a84-detector-rule"
+  resource_group_name = azurerm_resource_group.rg-a84.name
+  severity            = "Sev3"
+  description         = "failure anomalies"
+  scope_resource_ids  = [azurerm_application_insights.a84_app_insights.id]
+  frequency           = "PT1M"
+  detector_type       = "FailureAnomaliesDetector"
+
+  action_group {
+    ids = [azurerm_monitor_action_group.a84_action_group.id]
+  }
+}
