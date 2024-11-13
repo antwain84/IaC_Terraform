@@ -1,0 +1,67 @@
+# Define the user identifier (UPN or Object ID) to check ownership for
+$userIdentifier = "user@domain.com"  # Replace with the UPN or Object ID of the user to check ownership
+
+# Retrieve all subscriptions
+$subscriptions = Get-AzSubscription
+
+Write-Host "Checking ownership for user '$userIdentifier' in Azure..."
+
+# Loop through each subscription
+foreach ($subscription in $subscriptions) {
+    # Set the context to the current subscription
+    Set-AzContext -SubscriptionId $subscription.Id | Out-Null
+    Write-Host "`nChecking Subscription: $($subscription.Name) (ID: $($subscription.Id))"
+
+    # Part 1: Check Resource Ownership
+    Write-Host "`nResources owned by user '$userIdentifier' in subscription '$($subscription.Name)':"
+
+    # Get all role assignments in the subscription for the specified user
+    $roleAssignments = Get-AzRoleAssignment -SignInName $userIdentifier -ErrorAction SilentlyContinue
+
+    if ($roleAssignments) {
+        foreach ($assignment in $roleAssignments) {
+            $resource = $assignment.Scope
+            $role = $assignment.RoleDefinitionName
+            Write-Host " - Resource: $resource"
+            Write-Host "   Role: $role"
+            Write-Host "-------------------------------"
+        }
+    } else {
+        Write-Host "No resources owned by user '$userIdentifier' in subscription '$($subscription.Name)'."
+    }
+
+    # Part 2: Check Enterprise Application Ownership
+    Write-Host "`nEnterprise Applications owned by user '$userIdentifier':"
+
+    # Get all service principals (Enterprise Applications)
+    $enterpriseApps = Get-AzADServicePrincipal
+
+    # Filter enterprise applications for which the specified user is an owner
+    $ownedApps = @()
+    foreach ($app in $enterpriseApps) {
+        # Get the object IDs of owners of the Enterprise Application
+        $appOwners = (Invoke-AzRestMethod -Method GET -Path "/servicePrincipals/$($app.Id)/owners").Value
+
+        # Check if the user is among the owners
+        $isOwner = $appOwners | Where-Object { $_.userPrincipalName -eq $userIdentifier -or $_.id -eq $userIdentifier }
+
+        if ($isOwner) {
+            $ownedApps += [PSCustomObject]@{
+                AppName  = $app.DisplayName
+                AppId    = $app.AppId
+                ObjectId = $app.Id
+            }
+        }
+    }
+
+    if ($ownedApps) {
+        $ownedApps | ForEach-Object {
+            Write-Host " - Enterprise Application: $($_.AppName)"
+            Write-Host "   App ID: $($_.AppId)"
+            Write-Host "   Object ID: $($_.ObjectId)"
+            Write-Host "-------------------------------"
+        }
+    } else {
+        Write-Host "No Enterprise Applications owned by user '$userIdentifier'."
+    }
+}
