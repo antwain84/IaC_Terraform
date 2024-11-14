@@ -1,0 +1,32 @@
+# Define the service principal App ID or Display Name
+$servicePrincipalIdentifier = "your-service-principal-app-id-or-name"  # Replace with the service principal's App ID or Display Name
+
+# Get the service principal based on identifier
+$servicePrincipal = Get-AzADServicePrincipal -Filter "displayName eq '$servicePrincipalIdentifier'" -ErrorAction SilentlyContinue
+
+if (-not $servicePrincipal) {
+    $servicePrincipal = Get-AzADServicePrincipal -Filter "appId eq '$servicePrincipalIdentifier'" -ErrorAction SilentlyContinue
+}
+
+if ($servicePrincipal) {
+    Write-Host "Service Principal: $($servicePrincipal.DisplayName)"
+    Write-Host "App ID: $($servicePrincipal.AppId)"
+    Write-Host "Object ID: $($servicePrincipal.Id)"
+    
+    # Retrieve owners of the service principal using REST API
+    $owners = (Invoke-AzRestMethod -Method GET -Path "/servicePrincipals/$($servicePrincipal.Id)/owners").Value
+
+    if ($owners) {
+        Write-Host "Owners:"
+        foreach ($owner in $owners) {
+            Write-Host " - Owner Display Name: $($owner.displayName)"
+            Write-Host "   Owner UPN: $($owner.userPrincipalName)"
+            Write-Host "   Owner Object ID: $($owner.id)"
+            Write-Host "-------------------------------"
+        }
+    } else {
+        Write-Host "No owners found for this service principal."
+    }
+} else {
+    Write-Host "Service principal with identifier '$servicePrincipalIdentifier' not found."
+}
